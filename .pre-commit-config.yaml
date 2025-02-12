@@ -1,0 +1,30 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+      - id: debug-statements
+      - id: mixed-line-ending
+      - id: detect-private-key
+      - id: destroyed-symlinks
+      - id: check-shebang-scripts-are-executable
+      - id: check-case-conflict
+      - id: check-merge-conflict
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.17.2
+    hooks:
+      - id: markdownlint-cli2
+        args: ['--config', '.pre-commit-check/.markdownlint.json']  # Pointing to your custom config
+
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.8.0  # or any other version of shellcheck you prefer
+    hooks:
+      - id: shellcheck
+        files: \.sh$
+        args: ["--severity=warning"]
