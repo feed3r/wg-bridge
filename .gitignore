@@ -1,2 +1,3 @@
 .github
 .pre-commit-check
+test*.sh
