@@ -20,9 +20,14 @@ export wgbconf="$user_home/.wgbconf.json"
 export DIRS=("/etc/wireguard")
 
 function get_configuration(){
-  while IFS= read -r item; do
-    DIRS+=("$item")
-  done < <(jq -r '.config_path[]' "$wgbconf")
+  if [ -f "$wgbconf" ]; then
+    while IFS= read -r item; do
+      DIRS+=("$item")
+    done < <(jq -r '.config_path[]' "$wgbconf")
+  else
+    log_error "Missing configuration. Reinstall the tool"
+    exit 1
+  fi
 }
 
 function view_prompt(){
