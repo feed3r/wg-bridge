@@ -18,3 +18,7 @@ and this project adheres to
 - The autocomplation for bash
 - The installer script
 - The `.wgbconf.json` configuration file
+
+### Changed
+
+- How the configuration file is handled during installation and upgrade

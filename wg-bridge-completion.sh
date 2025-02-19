@@ -7,16 +7,15 @@ wgbconf="$user_home/.wgbconf.json"
 get_configuration(){
   while IFS= read -r item; do
     DIRS+=("$item")
-  done < <(jq -r '.config_path[]' "$wgbconf")
+  done < <(jq -r '.conf_path[]' "$wgbconf")
 }
 
 find_configs(){
   get_configuration
-  DIRS=("${DIRS[@]}")
   sudo find "${DIRS[@]}" -type f -name "*.conf" 2>/dev/null
 }
 
-_lovpn_autocomplete() {
+_wgb_autocomplete() {
   local cur prev opts
   COMPREPLY=()  # Initialize COMPREPLY array
 
