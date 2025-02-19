@@ -4,21 +4,23 @@ source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/utils.sh"
 
 
 function usage(){
-  echo "Usage: $(basename "$0") [OPTIONS] <ARGUMENT>"
+  echo "Usage: $(basename "$0") [OPTIONS] [COMMAND] <ARGUMENT>"
   echo ""
-  echo "A tool to connect to a Wireguard VPN"
+  echo "A tool to handle a Wireguard VPN"
+  echo ""
+  echo "Command"
+  echo "  connect     [<arg>]  Connect to a specified resource (optional argument)"
+  echo "  disconnect  [<arg>]  Disconnect from a specified resource (optional argument)"
+  echo "  list                 List available resources"
+  echo "  status               List active VPN"
   echo ""
   echo "Options:"
-  echo "  -h, --help                 Show this help message and exit"
-  echo "  -v, --verbose              Enable verbose mode"
-  echo "  -c, --connect     [<arg>]  Connect to a specified resource (optional argument)"
-  echo "  -d, --disconnect  [<arg>]  Disconnect from a specified resource (optional argument)"
-  echo "  -l, --list                 List available resources"
-  echo "  -s, --status               List active VPN"
+  echo "  -h, --help           Show this help message and exit"
+  echo "  -v, --verbose        Enable verbose mode"
   echo ""
   echo "Example:"
-  echo "  $(basename "$0") -c /path/to/server1.conf"
-  echo "  $(basename "$0") -d    # Disconnect without specifying a resource"
+  echo "  $(basename "$0") connect /path/to/server1.conf"
+  echo "  $(basename "$0") disconnect    # Disconnect without specifying a resource"
   exit 1
 }
 
@@ -32,7 +34,7 @@ function connect(){
   if [ "$conf" != "" ]; then
     sudo wg-quick up "$conf"
     if [ $token ]; then
-      xdg-open $token_uri > /dev/null 2>&1 &
+      xdg-open "$token_uri" > /dev/null 2>&1 &
     fi
   fi
 }
@@ -64,35 +66,65 @@ function status(){
   fi
 }
 
-if [[ $# == 0 ]]; then
+###############################################################################
+### MAIN
+###############################################################################
+
+if [ $# -eq 0 ]; then
   usage
+  exit 2
 fi
 
 get_configuration
-while [[ $# -gt 0 ]]; do
+
+OPTIONS=vh
+LONGOPTIONS=verbose,help
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
+
+if [ $? -ne 0 ]; then
+  exit 2
+fi
+
+eval set -- "$PARSED"
+
+while true; do
   case "$1" in
     -v|--verbose)
       export VERBOSE=true
-      ;;
-    -c|--connect)
       shift
-      connect "$1" || exit 1
       ;;
-    -d|--disconnect)
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
       shift
-      disconnect "$1" || exit 1
-      ;;
-    -l|--list)
-      list "show" || exit 1
-      ;;
-    -s|--status)
-      status || exit 1
+      break
       ;;
     *)
       echo "Unknown option: $1"
       usage
-      exit 1
+      exit 3
       ;;
   esac
-  shift
 done
+
+case ${1} in
+  connect)
+    connect "$2" || exit 1
+    ;;
+  disconnect)
+    disconnect "$2" || exit 1
+    ;;
+  list)
+    list "show" || exit 1
+    ;;
+  status)
+    status || exit 1
+    ;;
+  *)
+    echo "unknown command $1"
+    usage
+    exit 3
+    ;;
+esac
