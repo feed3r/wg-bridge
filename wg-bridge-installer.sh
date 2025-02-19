@@ -65,6 +65,9 @@ function install(){
     jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
   fi
 
+  sudo cp "wg-bridge-completion.sh" "/etc/bash_completion.d/"
+  sudo chmod 755 "/etc/bash_completion.d/wg-bridge-completion.sh"
+
   log_info "Done"
 }
 

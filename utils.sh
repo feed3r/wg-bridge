@@ -30,7 +30,7 @@ function get_configuration(){
   if [ -f "$wgbconf" ]; then
     while IFS= read -r item; do
       DIRS+=("$item")
-    done < <(jq -r '.config_path[]' "$wgbconf")
+    done < <(jq -r '.conf_path[]' "$wgbconf")
   else
     log_error "{000} Something goes wrong. Reinstall the tool."
     exit 1
@@ -51,6 +51,5 @@ function view_prompt(){
 }
 
 function find_configs(){
-  DIRS=("${DIRS[@]}")
   sudo find "${DIRS[@]}" -type f -name "*.conf" 2>/dev/null
 }
