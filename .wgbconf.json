@@ -3,5 +3,7 @@
     "conf_path":[],
     "error_codes":{
         "000": "Missing wgb configuration"
-    }
+    },
+    "token": false,
+    "token_uri": ""
 }

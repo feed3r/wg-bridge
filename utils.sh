@@ -8,6 +8,8 @@ export NC="\e[0m"
 export user_home=$HOME
 export wgbconf="$user_home/.wgbconf.json"
 export DIRS=("/etc/wireguard")
+export token=false
+export token_uri=""
 
 
 function log_error(){
@@ -31,6 +33,8 @@ function get_configuration(){
     while IFS= read -r item; do
       DIRS+=("$item")
     done < <(jq -r '.conf_path[]' "$wgbconf")
+    token=$(jq -r '.token' "$wgbconf")
+    token_uri=$(jq -r '.token_uri' "$wgbconf")
   else
     log_error "{000} Something goes wrong. Reinstall the tool."
     exit 1

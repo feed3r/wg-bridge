@@ -31,6 +31,9 @@ function connect(){
   fi
   if [ "$conf" != "" ]; then
     sudo wg-quick up "$conf"
+    if [ $token ]; then
+      xdg-open $token_uri > /dev/null 2>&1 &
+    fi
   fi
 }
 
