@@ -18,6 +18,7 @@ and this project adheres to
 - The autocomplation for bash
 - The installer script
 - The `.wgbconf.json` configuration file
+- The 2FA management
 
 ### Changed
 
