@@ -5,6 +5,11 @@ export YELLOW="\e[33m"
 export RED="\e[31m"
 export NC="\e[0m"
 
+export user_home=$HOME
+export wgbconf="$user_home/.wgbconf.json"
+export DIRS=("/etc/wireguard")
+
+
 function log_error(){
   echo -e "$RED$1$NC"
 }
@@ -15,9 +20,11 @@ function log_info(){
   echo -e "$CYAN$1$NC"
 }
 
-export user_home=$HOME
-export wgbconf="$user_home/.wgbconf.json"
-export DIRS=("/etc/wireguard")
+function get_error_msg(){
+  errors="$(jq -r '.error_codes' "$wgbconf")"
+
+  echo $errors | jq -r "$1"
+}
 
 function get_configuration(){
   if [ -f "$wgbconf" ]; then
@@ -25,7 +32,7 @@ function get_configuration(){
       DIRS+=("$item")
     done < <(jq -r '.config_path[]' "$wgbconf")
   else
-    log_error "Missing configuration. Reinstall the tool"
+    log_error "{000} Something goes wrong. Reinstall the tool."
     exit 1
   fi
 }
