@@ -3,7 +3,8 @@
 source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
 user_home=$HOME
-wgbconf="$user_home/.wgbconf.json"
+conf=".wgbconf.json"
+wgbconf="$user_home/$conf"
 tool_dir=/opt/wg-bridge
 cmd=/usr/bin/wgb
 
@@ -58,7 +59,10 @@ function install(){
         directories="$directories,\"$dir\""
       fi
     done
-    echo -e "{\n\t\"config_path\": [$directories]\n}" > "$wgbconf"
+    jq --argjson paths "$directories" '.conf_path += [$paths]' $conf > $wgbconf
+  else
+    mv "$wgbconf" "$wgbconf.bak"
+    jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
   fi
 
   log_info "Done"
