@@ -2,52 +2,80 @@
 
 A tool to manage WireGuard VPN connections.
 
+## INSTALLATION
+
+To install **WG-Bridge**, use:
+
+```sh
+./wg-bridge-installation --install
+```
+
+## UNINSTALLATION
+
+To remove **WG-Bridge**, use:
+
+```sh
+./wg-bridge-installation --uninstall
+```
+
+**NB** yet to be implemented
+
 ## SYNOPSIS
 
-**wireguard-bridge** [**OPTIONS**]
+**wgb** [**OPTIONS**] [**COMMANDS**] [**ARGUMENT**]
 
 ## DESCRIPTION
 
-**wireguard-bridge** is a command-line tool designed to handle WireGuard VPN
+**wgb** is a command-line tool designed to handle WireGuard VPN
 connections. It allows users to connect, disconnect, list available
 configurations, and check the status of connections.
 
 ## OPTIONS
 
-## --connect [<config_path>]
+### -v | --verbose
+
+Enable a verbose logging
+
+### -h | --help
+
+Print in standard output an help message
+
+## COMMANDS
+
+### connect [<config_path>]
 
 Establish a VPN connection using the specified WireGuard configuration file.
 
-- **config_path**: (optional) Path to the WireGuard configuration file.
+- **config_path**: (optional) full path to the WireGuard configuration file.
 
 **Example:**
 
 ```sh
-wgb --connect
+wgb connect
 ```
 
 ```sh
-wgb -c /path/to/config.conf
+wgb connect /path/to/config.conf
 ```
 
-## --disconnect [<config_path>]
+### disconnect [<config_path>]
 
 Terminate the VPN connection associated with the specified WireGuard
 configuration file.
 
-- **config_path**: (optional) Path to the WireGuard configuration file.
+- **config_path**: (optional) full path to the WireGuard configuration file.
 
 **Example:**
 
 ```sh
-wgb --disconnect /path/to/config.conf
+wgb disconnect /path/to/config.conf
 ```
 
 ```sh
-wgb -d
+wgb disconnect
 ```
 
-## --list
+### list
 
 List all available WireGuard configurations.
 
@@ -57,7 +85,7 @@ List all available WireGuard configurations.
 wgb list
 ```
 
-## status
+### status
 
 Display the current status of active WireGuard connections.
 
@@ -71,11 +99,12 @@ wgb status
 
 The software uses a configuration file located in the user's home directory:
 
-**~/.wgb.json**
+**~/.wgbconf.json**
 
 ### Configuration Properties
 
-- **conf_path** *(array)*: List of paths to WireGuard configuration files.
+- **conf_path** *(array)*: List of full paths to directories containing
+WireGuard configuration files.
 - **error_codes** *(object)*: Mapping of error codes to error messages.
   - Example:
 
@@ -93,55 +122,11 @@ is enabled.
 
 ```json
 {
-    "conf_path": ["/etc/wireguard/wg0.conf", "/etc/wireguard/wg1.conf"],
+    "conf_path": ["/etc/wireguard/", "/home/user/"],
     "error_codes": {
         "000": "Missing wgb configuration"
     },
     "token": false,
     "token_uri": ""
 }
-```
-
-## INSTALLATION
-
-To install **wireguard-manager**, use:
-
-```sh
-wireguard-manager install
-```
-
-## UNINSTALLATION
-
-To remove **wireguard-manager**, use:
-
-```sh
-wireguard-manager uninstall
-```
-
-## EXIT STATUS
-
-**wireguard-manager** returns the following exit codes:
-
-- **0**: Success
-- **1**: General error
-- **000**: Missing WireGuard configuration
-
-## EXAMPLES
-
-Connect using a specific configuration file:
-
-```sh
-wireguard-manager connect /etc/wireguard/wg0.conf
-```
-
-Disconnect a specific configuration:
-
-```sh
-wireguard-manager disconnect /etc/wireguard/wg0.conf
-```
-
-Check the status of active connections:
-
-```sh
-wireguard-manager status
 ```

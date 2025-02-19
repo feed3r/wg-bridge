@@ -23,3 +23,4 @@ and this project adheres to
 ### Changed
 
 - How the configuration file is handled during installation and upgrade
+- The options `connect`, `disconnect`, `list` and `status` to commands
