@@ -57,3 +57,50 @@ function view_prompt(){
 function find_configs(){
   sudo find "${DIRS[@]}" -type f -name "*.conf" 2>/dev/null
 }
+
+function handle_token() {
+  local conf="$1"
+  local istoken=""
+  local uri=""
+
+  # Extract JSON object for the given path
+  # confset=$(jq --arg value "$conf" '.confs[] | select(.path==$value)' "$wgbconf")
+  confset=$(jq --arg value "$conf" '.confs // [] | map(select(.path==$value)) | first' "$wgbconf")
+
+
+  if [[ -n "$confset" ]]; then
+    # Extract token from JSON (force raw output to avoid quotes)
+    istoken=$(echo "$confset" | jq -r '.token')
+    # If no token exists, prompt the user
+    if [[ -z "$istoken" || "$istoken" == "null" ]]; then
+      read -rp "Is it necessary to enter a token to connect? [y/N] " token
+      case "${token,,}" in
+        "y"|"yes")
+          istoken=true
+          read -rp "Insert URI of 2FA: " uri
+          ;;
+        *)
+          istoken=false
+          uri=""
+          ;;
+      esac
+      # Update JSON file
+      jq --arg path "$conf" --argjson token "$istoken" --arg uri "$uri" \
+        '.confs += [{"path": $path, "token": $token, "uri": $uri}]' "$wgbconf" | \
+      sudo tee "$wgbconf.tmp" > /dev/null
+
+      # Move temp file and set permissions
+      sudo mv "$wgbconf.tmp" "$wgbconf"
+      sudo chown "$USER:$USER" "$wgbconf"
+      sudo chmod 644 "$wgbconf"
+    fi
+    echo $istoken
+  fi
+}
+
+
+function get_uri(){
+  local conf="$1"
+  uri=$(jq -r --arg value "$conf" '.confs[] | select(.path==$value) | .uri' "$wgbconf")
+  echo $uri
+}

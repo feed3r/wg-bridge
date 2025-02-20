@@ -24,3 +24,4 @@ and this project adheres to
 
 - How the configuration file is handled during installation and upgrade
 - The options `connect`, `disconnect`, `list` and `status` to commands
+- 2FA manager that allow to manage it on a connection-by-connection basis

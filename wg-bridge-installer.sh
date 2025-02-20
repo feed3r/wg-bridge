@@ -60,11 +60,9 @@ function install(){
       fi
     done
     jq --argjson paths "$directories" '.conf_path += [$paths]' $conf > $wgbconf
-    handle_token
   else
     mv "$wgbconf" "$wgbconf.bak"
     jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
-    handle_token
   fi
 
   sudo chown $USER:$USER "$wgbconf"
@@ -74,21 +72,6 @@ function install(){
   sudo chmod 755 "/etc/bash_completion.d/wg-bridge-completion.sh"
 
   log_info "Done"
-}
-
-function handle_token(){
-  read -rp "Is it necessary to enter a token to connect? [y/N] " token
-  case "${token,,}" in
-    "y"|"yes")
-      read -rp "Insert URI of 2FA " uri
-      sudo jq --argjson value "true" '.token = $value' "$wgbconf" | sudo tee "$wgbconf.tmp" > /dev/null
-      sudo jq --arg value "$uri" '.token_uri = $value' "$wgbconf.tmp" | sudo tee "$wgbconf.tmp2" > /dev/null
-      sudo mv "$wgbconf.tmp2" "$wgbconf"
-      sudo rm "$wgbconf.tmp"
-    ;;
-    *)
-    ;;
-  esac
 }
 
 if [ $# == 0 ]; then

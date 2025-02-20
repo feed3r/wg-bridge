@@ -26,15 +26,19 @@ function usage(){
 
 
 function connect(){
+  local istoken=""
+  local uri=""
   if [ "$1" != "" ]; then
     conf=$1
   else
     conf=$(list)
   fi
   if [ "$conf" != "" ]; then
+    istoken=$(handle_token "$conf")
     sudo wg-quick up "$conf"
-    if [ $token ]; then
-      xdg-open "$token_uri" > /dev/null 2>&1 &
+    if [ $istoken ]; then
+      uri=$(get_uri "$conf")
+      xdg-open "$uri" > /dev/null 2>&1 &
     fi
   fi
 }
