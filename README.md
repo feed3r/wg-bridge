@@ -114,9 +114,7 @@ WireGuard configuration files.
     }
     ```
 
-- **token** *(boolean)*: Indicates whether a two-factor authentication system
-is enabled.
-- **token_uri** *(string)*: The URI used for token input if 2FA is enabled.
+- **confs** *(array)*: Contains the properties of each configuration
 
 **Example Configuration File:**
 
