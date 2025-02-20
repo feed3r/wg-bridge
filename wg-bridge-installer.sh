@@ -8,6 +8,7 @@ wgbconf="$user_home/$conf"
 tool_dir=/opt/wg-bridge
 cmd=/usr/bin/wgb
 
+
 function usage(){
   echo "Usage: $(basename "$0") [OPTIONS]"
   echo ""
@@ -25,23 +26,32 @@ function install_dep(){
   sudo apt install -qq -y wireguard yad jq
 }
 
-function install(){
-  log_info "Installing dependency . . ."
-  install_dep
-
-  log_info "Installing wg-bridge . . ."
+function _install_sw(){
+  if [ "$update" == false ]; then
+    log_info "Installing wg-bridge . . ."
+  else
+    log_info "Updating wg-bridge . . ."
+  fi
   if [ ! -d "$tool_dir" ]; then
     sudo mkdir $tool_dir
   fi
-  sudo cp ./wg-bridge.sh ./utils.sh $tool_dir
+  sudo cp -f ./wg-bridge.sh ./utils.sh ./version $tool_dir
   sudo chmod 755 $tool_dir/*
   if [ ! -f $cmd ]; then
     sudo ln -s $tool_dir/wg-bridge.sh $cmd
   fi
+}
 
-  log_info "Installing configuration . . ."
+
+function install(){
+  log_info "Installing dependency . . ."
+  install_dep
 
   if [ ! -f "$wgbconf" ]; then
+    _install_sw
+
+    log_info "Installing configuration . . ."
+
     log_warn "Enter the path to configuration files (or empty line to finish)"
     while true; do
       # Get the directory path from the user
@@ -61,8 +71,16 @@ function install(){
     done
     jq --argjson paths "$directories" '.conf_path += [$paths]' $conf > $wgbconf
   else
-    mv "$wgbconf" "$wgbconf.bak"
-    jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
+    if [ -f "$tool_dir/version" ]; then
+      if [ "$(md5sum < "$tool_dir/version")" != "$(md5sum < ./version)" ] && [ "$update" == "true" ]; then
+        _install_sw
+        mv "$wgbconf" "$wgbconf.bak"
+        jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
+      else
+        log_warn "Software already installed"
+        exit 1
+      fi
+    fi
   fi
 
   sudo chown $USER:$USER "$wgbconf"
@@ -74,16 +92,49 @@ function install(){
   log_info "Done"
 }
 
+
+function uninstall(){
+  log_info "Uninstalling wg-bridge . . ."
+  if [ -f $wgbconf ]; then
+    sudo rm $wgbconf
+  fi
+  if [ -d $tool_dir ]; then
+    sudo rm -rf $tool_dir
+  fi
+  if [ -f "/usr/bin/wgb" ]; then
+    sudo rm /usr/bin/wgb
+  fi
+  if [ -f "/etc/bash_completion.d/wg-bridge-completion.sh" ]; then
+    sudo rm "/etc/bash_completion.d/wg-bridge-completion.sh"
+  fi
+  log_info "Done"
+}
+
+###############################################################################
+### MAIN
+###############################################################################
+
 if [ $# == 0 ]; then
   usage
 fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -i|--install)
+    install)
+      shift
+      case "$1" in
+        -u|--update)
+          update=true
+          shift
+          ;;
+        *)
+          update=false
+          shift
+          ;;
+      esac
       install || exit 1
       ;;
-    -u|--uninstall)
+    uninstall)
       uninstall || exit 1
       ;;
     *)

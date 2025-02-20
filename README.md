@@ -7,7 +7,7 @@ A tool to manage WireGuard VPN connections.
 To install **WG-Bridge**, use:
 
 ```sh
-./wg-bridge-installation --install
+./wg-bridge-installation install
 ```
 
 ## UNINSTALLATION
@@ -15,10 +15,22 @@ To install **WG-Bridge**, use:
 To remove **WG-Bridge**, use:
 
 ```sh
-./wg-bridge-installation --uninstall
+./wg-bridge-installation uninstall
 ```
 
-**NB** yet to be implemented
+## UPDATE
+
+To remove **WG-Bridge**, use:
+
+```sh
+./wg-bridge-installation install --update
+```
+
+or
+
+```sh
+./wg-bridge-installation install -u
+```
 
 ## SYNOPSIS
 
