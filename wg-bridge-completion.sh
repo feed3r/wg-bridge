@@ -3,6 +3,7 @@
 # Autocomplete for the Wireguard VPN connect/disconnect script
 user_home=$HOME
 wgbconf="$user_home/.wgbconf.json"
+DIRS=("/etc/wireguard")
 
 get_configuration(){
   while IFS= read -r item; do
@@ -16,30 +17,29 @@ find_configs(){
 }
 
 _wgb_autocomplete() {
-  local cur prev opts
-  COMPREPLY=()  # Initialize COMPREPLY array
+ local cur prev opts confs flags
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-  # Define the possible options for the script
-  opts="-h --help -c --connect -d --disconnect -l --list -s --status"
+    # Define available commands
+    opts="connect disconnect list status"
 
-  # The current word (argument) being typed
-  cur="${COMP_WORDS[COMP_CWORD]}"
-  prev="${COMP_WORDS[COMP_CWORD-1]}"
+    # Define available options
+    flags="-v --version -h --help"
 
-  if [[ ${COMP_CWORD} -eq 1 ]]; then
-    mapfile -t COMPREPLY < <(compgen -W "$opts" -- "$cur")
-    return 0
-  fi
+    # Define available configurations (modify the path if needed)
+    confs=$(find_configs)
 
-  # Handle specific cases based on previous word
-  case "$prev" in
-    -c|--connect|-d|--disconnect)
-      mapfile -t COMPREPLY < <(find_configs)  # Suggest example resources
-      return 0
-      ;;
-  esac
-
-  return 0
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        # Suggest commands and global options at first position
+        mapfile -t COMPREPLY < <(compgen -W "$opts $flags" -- "$cur")
+        # COMPREPLY=( $(compgen -W "$opts $flags" -- "$cur") )
+    elif [[ "$prev" == "connect" || "$prev" == "disconnect" ]]; then
+        # Suggest config files for connect/disconnect
+        mapfile -t COMPREPLY < <(compgen -W "$confs" -- "$cur")
+        # COMPREPLY=( $(compgen -W "$confs" -- "$cur") )
+    fi
 }
 
 # Register the autocomplete function
