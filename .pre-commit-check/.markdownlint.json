@@ -1,3 +1,10 @@
 {
-  "no-emphasis-as-heading": false
+  "no-emphasis-as-heading": false,
+  "MD033": {
+    "allowed_elements": [
+      "h1",
+      "p",
+      "img"
+      ]
+  }
 }
