@@ -1,6 +1,7 @@
-# WG-Bridge
-
-A tool to manage WireGuard VPN connections.
+<h1 style="text-align: center">
+<img alt="logo" src="./assets/logo_wgb.jpg" width=350/>
+<p align=center>A tool to manage WireGuard VPN connections.</p>
+</h1>
 
 ## INSTALLATION
 
