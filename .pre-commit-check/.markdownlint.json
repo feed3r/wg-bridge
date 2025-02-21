@@ -4,7 +4,8 @@
     "allowed_elements": [
       "h1",
       "p",
-      "img"
+      "img",
+      "div"
       ]
   }
 }
