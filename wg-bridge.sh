@@ -13,6 +13,10 @@ function usage(){
   echo "  disconnect  [<arg>]  Disconnect from a specified resource (optional argument)"
   echo "  list                 List available resources"
   echo "  status               List active VPN"
+  echo "  path                                "
+  echo "              add      Add paths in the configuration file"
+  echo "              delete   Remove a path from configuration file"
+  echo "              list     List all paths"
   echo ""
   echo "Options:"
   echo "  -h, --help           Show this help message and exit"
@@ -70,6 +74,54 @@ function status(){
   fi
 }
 
+function add_path(){
+  add_dir_paths
+}
+
+
+function remove_path(){
+  mapfile -t items < <(load_paths)
+
+  if [ ${#items[@]} -eq 0 ]; then
+    log_info "No paths available"
+    exit 0
+  fi
+
+   # Print the numbered list
+  echo "Available paths:"
+  for i in "${!items[@]}"; do
+    echo "  $((i + 1)). ${items[i]}"
+  done
+
+  # Prompt the user to select a number
+  echo
+  read -rp "Enter the number of the path you want delete: " selection
+
+  # Validate input and print the selected item
+  if [[ "$selection" =~ ^[0-9]+$ ]] && ((selection > 0 && selection <= ${#items[@]})); then
+    # Get the selected item name
+    item_to_remove="${items[$selection-1]}"
+
+    # Remove the item from the JSON file using jq
+    jq --arg item "$item_to_remove" 'del(.conf_path[] | select(. ==$item))' "$wgbconf" > "$wgbconf.tmp"
+    sudo mv "$wgbconf.tmp" "$wgbconf"
+
+    log_info "Item '$item_to_remove' has been removed from configuration file."
+  else
+    log_warn "Invalid selection."
+  fi
+}
+
+function list_path(){
+  mapfile -t items < <(load_paths)
+   # Print the numbered list
+  echo "Available paths:"
+  for i in "${!items[@]}"; do
+    echo "  $((i + 1)). ${items[i]}"
+  done
+}
+
+
 ###############################################################################
 ### MAIN
 ###############################################################################
@@ -106,14 +158,12 @@ while true; do
       break
       ;;
     *)
-      echo "Unknown option: $1"
-      usage
-      exit 3
+      break
       ;;
   esac
 done
 
-case ${1} in
+case "$1" in
   connect)
     connect "$2" || exit 1
     ;;
@@ -125,6 +175,21 @@ case ${1} in
     ;;
   status)
     status || exit 1
+    ;;
+  path)
+    shift
+    case "$1" in
+      add) add_path || exit 1
+        ;;
+      delete) remove_path || exit 1
+        ;;
+      list) list_path || exit 1
+        ;;
+      *)
+        echo "Unknown option"
+        exit 3
+        ;;
+    esac
     ;;
   *)
     echo "unknown command $1"

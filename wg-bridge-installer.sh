@@ -52,27 +52,10 @@ function install(){
 
     log_info "Installing configuration . . ."
 
-    log_warn "Enter the path to configuration files (or empty line to finish)"
-    while true; do
-      # Get the directory path from the user
-      read -rp "Path: " dir
-
-      # If the user pressed Enter without typing anything, stop the loop
-      if [[ -z "$dir" ]]; then
-        break
-      fi
-
-      # Append the directory path to the string, separated by a comma
-      if [[ -z "$directories" ]]; then
-        directories="\"$dir\""
-      else
-        directories="$directories,\"$dir\""
-      fi
-    done
-    jq --argjson paths "$directories" '.conf_path += [$paths]' $conf > $wgbconf
+    add_dir_paths
   else
     if [ -f "$tool_dir/version" ]; then
-      if [ "$(md5sum < "$tool_dir/version")" != "$(md5sum < ./version)" ] && [ "$update" == "true" ]; then
+      if ([ "$(md5sum < "$tool_dir/version")" != "$(md5sum < ./version)" ] && [ "$update" == "true" ]) || [ "$force" == "true" ]; then
         _install_sw
         mv "$wgbconf" "$wgbconf.bak"
         jq --slurpfile customer "$wgbconf.bak" '.conf_path |= (. + $customer[0].conf_path)' "$conf" > "$wgbconf"
@@ -125,16 +108,22 @@ while [[ $# -gt 0 ]]; do
       ;;
     install)
       shift
-      case "$1" in
-        -u|--update)
-          update=true
-          shift
-          ;;
-        *)
-          update=false
-          shift
-          ;;
-      esac
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          -u|--update)
+            update=true
+            shift
+            ;;
+          -f|--force)
+            force=true
+            shift
+            ;;
+          *)
+            update=false
+            break
+            ;;
+        esac
+      done
       install || exit 1
       ;;
     uninstall)
