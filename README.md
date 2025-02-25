@@ -1,6 +1,6 @@
 <h1>
   <div align="center">
-    <img alt="logo" src="./assets/logo_wgb.jpg" width="350"/>
+    <img alt="logo" src="./assets/logo_wgb2.svg" width="350"/>
     <p>A tool to manage WireGuard VPN connections.</p>
   </div>
 </h1>
