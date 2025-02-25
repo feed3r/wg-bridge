@@ -110,6 +110,38 @@ Display the current status of active WireGuard connections.
 wgb status
 ```
 
+### path
+
+#### add
+
+Add paths where Wireguard configurations are saved
+
+**Example**
+
+```sh
+wgb path add
+```
+
+#### delete
+
+Remove a path where Wireguard configurations are saved
+
+**Example**
+
+```sh
+wgb path delete
+```
+
+#### list
+
+List all paths where Wireguard configurations are saved
+
+**Example**
+
+```sh
+wgb path list
+```
+
 ## CONFIGURATION FILE
 
 The software uses a configuration file located in the user's home directory:

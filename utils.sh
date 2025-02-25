@@ -104,3 +104,37 @@ function get_uri(){
   uri=$(jq -r --arg value "$conf" '.confs[] | select(.path==$value) | .uri' "$wgbconf")
   echo $uri
 }
+
+
+function add_dir_paths(){
+  log_warn "Enter the path to configuration files (or empty line to finish)"
+  while true; do
+    # Get the directory path from the user
+    read -rp "Path: " dir
+
+    # If the user pressed Enter without typing anything, stop the loop
+    if [[ -z "$dir" ]]; then
+      break
+    fi
+
+    # Append the directory path to the string, separated by a comma
+    directories+=("$dir")
+  done
+
+  jsonarray=$(printf '%s\n' "${directories[@]}" | jq -R . | jq -s .)
+
+  jq --argjson paths "$jsonarray" '.conf_path += $paths' $wgbconf > $wgbconf.tmp
+  sudo mv $wgbconf.tmp $wgbconf
+  sudo chown $USER:$USER $wgbconf
+  sudo chmod 644 $wgbconf
+}
+
+
+function load_paths(){
+  # Read JSON array into a Bash array
+  mapfile -t items < <(jq -r '.conf_path[]' $wgbconf)
+
+  for item in "${items[@]}"; do
+    echo "$item"
+  done
+}
